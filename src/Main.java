@@ -5,11 +5,31 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner lector = new Scanner(System.in);
-        ArrayList<Equipo> equiposDisponibles = cargarEquiposReales();
-        ArrayList<Liga> listaLigas = cargarLigasIniciales(equiposDisponibles);
+
+        // 1. Cargar las listas de equipos desde cada clase de datos
+        ArrayList<Equipo> espana = DatosLaLiga.cargarEquiposLaLiga();
+        ArrayList<Equipo> inglaterra = DatosPremierLeague.cargarEquiposPremier();
+        ArrayList<Equipo> italia = DatosSerieA.cargarEquiposSerieA();
+        ArrayList<Equipo> alemania = DatosBundesliga.cargarEquiposBundesliga();
+        ArrayList<Equipo> francia = DatosLigue1.cargarEquiposLigue1();
+        ArrayList<Equipo> colombia = DatosLigaColombia.cargarEquiposColombia();
+
+        // 2. Unificar todos los equipos disponibles en una lista global (para la opción 3)
+        ArrayList<Equipo> equiposDisponibles = new ArrayList<>();
+        equiposDisponibles.addAll(espana);
+        equiposDisponibles.addAll(inglaterra);
+        equiposDisponibles.addAll(italia);
+        equiposDisponibles.addAll(alemania);
+        equiposDisponibles.addAll(francia);
+        equiposDisponibles.addAll(colombia);
+
+        // 3. Cargar las ligas iniciales con sus respectivos equipos
+        ArrayList<Liga> listaLigas = cargarLigasIniciales(espana, inglaterra, italia, alemania, francia, colombia);
+
         Liga ligaActual = listaLigas.get(0);
         Equipo equipoActual = ligaActual.getEquiposParticipantes().get(0);
         int opcion;
+
         do {
             System.out.println("\n=======================================================");
             System.out.println(" LIGA ACTUAL: " + ligaActual.getNombreLiga().toUpperCase() +
@@ -29,6 +49,7 @@ public class Main {
             System.out.print("Elija una opción: ");
             opcion = lector.nextInt();
             lector.nextLine();
+
             switch (opcion) {
                 case 1:
                     System.out.println("\n--- LIGAS DISPONIBLES ---");
@@ -51,6 +72,7 @@ public class Main {
                         System.out.println("Opción no válida.");
                     }
                     break;
+
                 case 2:
                     System.out.println("\n--- CREAR LIGA PROPIA ---");
                     System.out.print("Nombre de la nueva liga: ");
@@ -63,6 +85,7 @@ public class Main {
                     equipoActual = new Equipo("Sin equipo seleccionado");
                     System.out.println("¡Liga '" + nomLiga + "' creada! Ahora usa la opción 3 o 5 para meterle equipos.");
                     break;
+
                 case 3:
                     System.out.println("\n--- INSCRIBIR EQUIPO EN " + ligaActual.getNombreLiga().toUpperCase() + " ---");
                     for (int i = 0; i < equiposDisponibles.size(); i++) {
@@ -83,6 +106,7 @@ public class Main {
                         System.out.println("Número de equipo inválido.");
                     }
                     break;
+
                 case 4:
                     ArrayList<Equipo> equiposEnLiga = ligaActual.getEquiposParticipantes();
                     if (equiposEnLiga.isEmpty()) {
@@ -103,6 +127,7 @@ public class Main {
                         System.out.println("Opción no válida.");
                     }
                     break;
+
                 case 5:
                     System.out.println("\n--- CREAR NUEVO EQUIPO ---");
                     System.out.print("Nombre del nuevo equipo: ");
@@ -122,6 +147,7 @@ public class Main {
                     equipoActual = nuevoEquipo;
                     System.out.println("¡Equipo '" + nombreNuevoEquipo + "' creado e inscrito en " + ligaActual.getNombreLiga() + "!");
                     break;
+
                 case 6:
                     if (ligaActual.getEquiposParticipantes().isEmpty()) {
                         System.out.println("No hay ningún equipo seleccionado en esta liga.");
@@ -132,6 +158,7 @@ public class Main {
                     System.out.println("Plantilla de Jugadores:");
                     equipoActual.leerTodos();
                     break;
+
                 case 7:
                     if (ligaActual.getEquiposParticipantes().isEmpty()) {
                         System.out.println("Primero crea o inscribe un equipo en esta liga.");
@@ -150,8 +177,54 @@ public class Main {
                     equipoActual.agregarJugador(nuevoJugador);
                     System.out.println("¡Jugador agregado a " + equipoActual.getNombreEquipo() + "!");
                     break;
+
+                case 8:
+                    if (ligaActual.getEquiposParticipantes().isEmpty()) {
+                        System.out.println("No hay ningún equipo seleccionado.");
+                        break;
+                    }
+                    System.out.println("\n--- ACTUALIZAR O ELIMINAR JUGADOR ---");
+                    equipoActual.leerTodos();
+                    System.out.print("Ingrese el ID del jugador: ");
+                    String idGestion = lector.nextLine();
+                    System.out.print("¿Desea (1) Actualizar o (2) Eliminar?: ");
+                    int subOpcion = lector.nextInt();
+                    lector.nextLine();
+                    if (subOpcion == 1) {
+                        System.out.print("Nuevo nombre: ");
+                        String nomAct = lector.nextLine();
+                        System.out.print("Nuevo dorsal: ");
+                        int dorAct = lector.nextInt();
+                        lector.nextLine();
+                        if (equipoActual.actualizarJugador(idGestion, nomAct, dorAct)) {
+                            System.out.println("¡Jugador actualizado!");
+                        } else {
+                            System.out.println("No se encontró un jugador con ese ID.");
+                        }
+                    } else if (subOpcion == 2) {
+                        if (equipoActual.eliminarJugador(idGestion)) {
+                            System.out.println("¡Jugador eliminado!");
+                        } else {
+                            System.out.println("No se encontró un jugador con ese ID.");
+                        }
+                    } else {
+                        System.out.println("Opción no válida.");
+                    }
+                    break;
+
+                case 9:
+                    System.out.println("Saliendo del sistema...");
+                    break;
+
+                default:
+                    System.out.println("Opción no válida. Intente de nuevo.");
+                    break;
             }
-        }
+        } while (opcion != 9);
+
+        lector.close();
+    }
+
     private static ArrayList<Liga> cargarLigasIniciales(
             ArrayList<Equipo> espana,
             ArrayList<Equipo> inglaterra,
