@@ -1,4 +1,4 @@
-public class Tecnico extends Persona{
+public class Tecnico extends Usuario {
     public String club;
     public Tecnico() {}
     public Tecnico(String nombre, String id, String club, String pais) {

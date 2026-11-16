@@ -1,4 +1,4 @@
-public enum posiciones {
+public enum Posicion {
     PORTERO,
     DEFENSA,
     DELANTERO,
